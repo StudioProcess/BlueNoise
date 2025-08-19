@@ -324,7 +324,7 @@ def GenerateBlueNoiseDatabase(RandomSeedIndexList=range(1),MinResolution=16,MaxR
        of directories."""
     Resolution=MinResolution;
     while(Resolution<=MaxResolution):
-        OutputDirectory="../Data/%d_%d"%(Resolution,Resolution);
+        OutputDirectory="./Data/%d_%d"%(Resolution,Resolution);
         if(not path.exists(OutputDirectory)):
             makedirs(OutputDirectory);
         for nChannel in ChannelCountList:
@@ -344,7 +344,7 @@ def Generate3DBlueNoiseTexture(Width,Height,Depth,nChannel,StandardDeviation=1.5
        output files in LDR and HDR in a well-organized tree of directories. It also 
        outputs raw binary files.
       \\sa StoreNDTextureHDR() """
-    OutputDirectory="../Data/%d_%d_%d"%(Width,Height,Depth);
+    OutputDirectory="./Data/%d_%d_%d"%(Width,Height,Depth);
     if(not path.exists(OutputDirectory)):
         makedirs(OutputDirectory);
     # Generate the blue noise for the various channels using multi-threading
@@ -412,8 +412,8 @@ if(__name__=="__main__"):
         #Generate3DBlueNoiseTexture(32,32,32,nChannel,1.9);
         #Generate3DBlueNoiseTexture(64,64,64,nChannel,1.9);
         #ChannelNames=["","L","LA","RGB","RGBA"][nChannel];
-        #GenerateNDBlueNoiseTexture((8,8,8,8),nChannel,"../Data/8_8_8_8/HDR_"+ChannelNames+".raw",1.9);
-        #GenerateNDBlueNoiseTexture((16,16,16,16),nChannel,"../Data/16_16_16_16/HDR_"+ChannelNames+".raw",1.9);
+        #GenerateNDBlueNoiseTexture((8,8,8,8),nChannel,"./Data/8_8_8_8/HDR_"+ChannelNames+".raw",1.9);
+        #GenerateNDBlueNoiseTexture((16,16,16,16),nChannel,"./Data/16_16_16_16/HDR_"+ChannelNames+".raw",1.9);
     Texture=GetVoidAndClusterBlueNoise((64,64),1.9);
     #Texture=GetVoidAndClusterBlueNoise((32,32,32),1.9)[:,:,0];
     AnalyzeNoiseTexture(Texture,True);
