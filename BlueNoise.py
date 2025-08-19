@@ -103,7 +103,7 @@ def GetVoidAndClusterBlueNoise(OutputShape,StandardDeviation=1.5,InitialSeedFrac
         else:
             InitialBinaryPattern.flat[iLargestVoid]=True;
     # Rank all pixels
-    DitherArray=np.zeros(OutputShape,dtype=np.int);
+    DitherArray=np.zeros(OutputShape,dtype=int);
     # Phase 1: Rank minority pixels in the initial binary pattern
     BinaryPattern=np.copy(InitialBinaryPattern);
     for Rank in range(nInitialOne-1,-1,-1):
@@ -164,7 +164,7 @@ def AnalyzeNoiseTexture(Texture,SingleFigure=True,SimpleLabels=False):
     X,Y=np.meshgrid(range(DFT.shape[1]),range(DFT.shape[0]));
     X-=int(DFT.shape[1]/2);
     Y-=int(DFT.shape[0]/2);
-    RadialFrequency=np.asarray(np.round(np.sqrt(X**2+Y**2)),dtype=np.int);
+    RadialFrequency=np.asarray(np.round(np.sqrt(X**2+Y**2)),dtype=int);
     RadialPower=np.zeros((np.max(RadialFrequency)-1,));
     DFT[int(DFT.shape[0]/2),int(DFT.shape[1]/2)]=0.0;
     for i in range(RadialPower.shape[0]):
@@ -173,8 +173,8 @@ def AnalyzeNoiseTexture(Texture,SingleFigure=True,SimpleLabels=False):
     # Plot the distribution of power over angular frequency ranges
     PrepareAxes(4,title="Anisotropy (angular power distribution)",aspect="equal",xlabel="Frequency x" if SimpleLabels else "$\\omega_x$",ylabel="Frequency y" if SimpleLabels else "$\\omega_y$");
     CircularMask=np.logical_and(0<RadialFrequency,RadialFrequency<int(min(DFT.shape[0],DFT.shape[1])/2));
-    NormalizedX=np.asarray(X,dtype=np.float)/np.maximum(1.0,np.sqrt(X**2+Y**2));
-    NormalizedY=np.asarray(Y,dtype=np.float)/np.maximum(1.0,np.sqrt(X**2+Y**2));
+    NormalizedX=np.asarray(X,dtype=float)/np.maximum(1.0,np.sqrt(X**2+Y**2));
+    NormalizedY=np.asarray(Y,dtype=float)/np.maximum(1.0,np.sqrt(X**2+Y**2));
     BinningAngle=np.linspace(0.0,2.0*np.pi,33);
     AngularPower=np.zeros_like(BinningAngle);
     for i,Angle in enumerate(BinningAngle):
@@ -397,7 +397,7 @@ def UniformToTriangularDistribution(UniformTexture):
              np.size(UniformTexture)-1 exactly once.
       \return A floating-point array with values between -1 and 1 where the density 
               grows linearly between -1 and 0 and falls linearly between 0 and 1."""
-    Normalized=(np.asarray(UniformTexture,dtype=np.float)+0.5)/float(np.size(UniformTexture));
+    Normalized=(np.asarray(UniformTexture,dtype=float)+0.5)/float(np.size(UniformTexture));
     return np.where(Normalized<0.5,np.sqrt(2.0*Normalized)-1.0,1.0-np.sqrt(2.0-2.0*Normalized));
 
 
