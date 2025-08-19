@@ -48,7 +48,7 @@ def FindLargestVoid(BinaryPattern,StandardDeviation):
     # Apply the Gaussian. We do not want to cut off the Gaussian at all because even 
     # the tiniest difference can change the ranking. Therefore we apply the Gaussian 
     # through a fast Fourier transform by means of the convolution theorem.
-    FilteredArray=np.fft.ifftn(ndimage.fourier.fourier_gaussian(np.fft.fftn(np.where(BinaryPattern,1.0,0.0)),StandardDeviation)).real;
+    FilteredArray=np.fft.ifftn(ndimage.fourier_gaussian(np.fft.fftn(np.where(BinaryPattern,1.0,0.0)),StandardDeviation)).real;
     # Find the largest void
     return np.argmin(np.where(BinaryPattern,2.0,FilteredArray));
 
@@ -59,7 +59,7 @@ def FindTightestCluster(BinaryPattern,StandardDeviation):
       \\sa GetVoidAndClusterBlueNoise"""
     if(np.count_nonzero(BinaryPattern)*2>=np.size(BinaryPattern)):
         BinaryPattern=np.logical_not(BinaryPattern);
-    FilteredArray=np.fft.ifftn(ndimage.fourier.fourier_gaussian(np.fft.fftn(np.where(BinaryPattern,1.0,0.0)),StandardDeviation)).real;
+    FilteredArray=np.fft.ifftn(ndimage.fourier_gaussian(np.fft.fftn(np.where(BinaryPattern,1.0,0.0)),StandardDeviation)).real;
     return np.argmax(np.where(BinaryPattern,FilteredArray,-1.0));
 
 
