@@ -34,14 +34,14 @@ def GetBayerPattern(Log2Width):
 def FindLargestVoid(BinaryPattern,StandardDeviation):
     """This function returns the indices of the largest void in the given binary 
        pattern as defined by Ulichney.
-      \param BinaryPattern A boolean array (should be two-dimensional although the 
+      \\param BinaryPattern A boolean array (should be two-dimensional although the 
              implementation works in arbitrary dimensions).
-      \param StandardDeviation The standard deviation used for the Gaussian filter 
+      \\param StandardDeviation The standard deviation used for the Gaussian filter 
              in pixels. This can be a single float for an isotropic Gaussian or a 
              tuple with one float per dimension for an anisotropic Gaussian.
-      \return A flat index i such that BinaryPattern.flat[i] corresponds to the 
+      \\return A flat index i such that BinaryPattern.flat[i] corresponds to the 
               largest void. By definition this is a majority pixel.
-      \sa GetVoidAndClusterBlueNoise"""
+      \\sa GetVoidAndClusterBlueNoise"""
     # The minority value is always True for convenience
     if(np.count_nonzero(BinaryPattern)*2>=np.size(BinaryPattern)):
         BinaryPattern=np.logical_not(BinaryPattern);
@@ -56,7 +56,7 @@ def FindLargestVoid(BinaryPattern,StandardDeviation):
 def FindTightestCluster(BinaryPattern,StandardDeviation):
     """Like FindLargestVoid() but finds the tightest cluster which is a minority 
        pixel by definition.
-      \sa GetVoidAndClusterBlueNoise"""
+      \\sa GetVoidAndClusterBlueNoise"""
     if(np.count_nonzero(BinaryPattern)*2>=np.size(BinaryPattern)):
         BinaryPattern=np.logical_not(BinaryPattern);
     FilteredArray=np.fft.ifftn(ndimage.fourier.fourier_gaussian(np.fft.fftn(np.where(BinaryPattern,1.0,0.0)),StandardDeviation)).real;
@@ -67,23 +67,23 @@ def GetVoidAndClusterBlueNoise(OutputShape,StandardDeviation=1.5,InitialSeedFrac
     """Generates a blue noise dither array of the given shape using the method 
        proposed by Ulichney [1993] in "The void-and-cluster method for dither array 
        generation" published in Proc. SPIE 1913. 
-      \param OutputShape The shape of the output array. This function works in 
+      \\param OutputShape The shape of the output array. This function works in 
              arbitrary dimension, i.e. OutputShape can have arbitrary length. Though 
              it is only tested for the 2D case where you should pass a tuple 
              (Height,Width).
-      \param StandardDeviation The standard deviation in pixels used for the 
+      \\param StandardDeviation The standard deviation in pixels used for the 
              Gaussian filter defining largest voids and tightest clusters. Larger 
              values lead to more low-frequency content but better isotropy. Small 
              values lead to more ordered patterns with less low-frequency content.
              Ulichney proposes to use a value of 1.5. If you want an anisotropic 
              Gaussian, you can pass a tuple of length len(OutputShape) with one 
              standard deviation per dimension.
-      \param InitialSeedFraction The only non-deterministic step in the algorithm 
+      \\param InitialSeedFraction The only non-deterministic step in the algorithm 
              marks a small number of pixels in the grid randomly. This parameter 
              defines the fraction of such points. It has to be positive but less 
              than 0.5. Very small values lead to ordered patterns, beyond that there 
              is little change.
-      \return An integer array of shape OutputShape containing each integer from 0 
+      \\return An integer array of shape OutputShape containing each integer from 0 
               to np.prod(OutputShape)-1 exactly once."""
     nRank=np.prod(OutputShape);
     # Generate the initial binary pattern with a prescribed number of ones
@@ -130,14 +130,14 @@ def AnalyzeNoiseTexture(Texture,SingleFigure=True,SimpleLabels=False):
        blue noise characteristics. The analysis includes the absolute value of the 
        Fourier transform, the power distribution in radial frequency bands and an 
        analysis of directional isotropy.
-      \param A two-dimensional array.
-      \param SingleFigure If this is True, all plots are shown in a single figure, 
+      \\param A two-dimensional array.
+      \\param SingleFigure If this is True, all plots are shown in a single figure, 
              which is useful for on-screen display. Otherwise one figure per plot 
              is created.
-      \param SimpleLabels Pass True to get axis labels that fit into the context of 
+      \\param SimpleLabels Pass True to get axis labels that fit into the context of 
              the blog post without further explanation.
-      \return A list of all created figures.
-      \note For the plots to show you have to invoke pyplot.show()."""
+      \\return A list of all created figures.
+      \\note For the plots to show you have to invoke pyplot.show()."""
     FigureList=list();
     if(SingleFigure):
         Figure=pyplot.figure();
@@ -192,8 +192,8 @@ def PlotBinaryPatterns(Texture,nPatternRow,nPatternColumn):
     """This function creates a figure with a grid of thresholded versions of the 
        given 2D noise texture. It assumes that each value from 0 to 
        np.size(Texture)-1 is contained exactly once.
-      \return The created figure.
-      \note For the plots to show you have to invoke pyplot.show()."""
+      \\return The created figure.
+      \\note For the plots to show you have to invoke pyplot.show()."""
     Figure=pyplot.figure();
     nPattern=nPatternRow*nPatternColumn+1;
     for i in range(1,nPattern):
@@ -205,7 +205,7 @@ def PlotBinaryPatterns(Texture,nPatternRow,nPatternColumn):
 def StoreNoiseTextureLDR(Texture,OutputPNGFilePath,nRank=-1):
     """This function stores the given texture to a standard low-dynamic range png 
        file with four channels and 8 bits per channel.
-      \param Texture An array of shape (Height,Width) or (Height,Width,nChannel). 
+      \\param Texture An array of shape (Height,Width) or (Height,Width,nChannel). 
              The former is handled like (Height,Width,1). If nChannel>4 the 
              superfluous channels are ignored. If nChannel<4 the data is expanded. 
              The alpha channel is set to 255, green and blue are filled with black 
@@ -213,9 +213,9 @@ def StoreNoiseTextureLDR(Texture,OutputPNGFilePath,nRank=-1):
              channel contains every integer value from 0 to nRank-1 exactly once. 
              The range of values is remapped linearly to span the range from 0 to 
              255.
-      \param OutputPNGFilePath The path to the output png file including the file 
+      \\param OutputPNGFilePath The path to the output png file including the file 
              format extension.
-      \param nRank Defaults to Width*Height if you pass a non-positive value."""
+      \\param nRank Defaults to Width*Height if you pass a non-positive value."""
     # Scale the array to an LDR version
     if(nRank<=0):
         nRank=Texture.shape[0]*Texture.shape[1];
@@ -241,14 +241,14 @@ def StoreNoiseTextureLDR(Texture,OutputPNGFilePath,nRank=-1):
 def StoreNoiseTextureHDR(Texture,OutputPNGFilePath,nRank=-1):
     """This function stores the given texture to an HDR png file with 16 bits per 
        channel and the specified number of channels.
-      \param Texture An array of shape (Height,Width) or (Height,Width,nChannel). 
+      \\param Texture An array of shape (Height,Width) or (Height,Width,nChannel). 
              The former is handled like (Height,Width,1). It is assumed that each 
              channel contains each integer value from 0 to nRank-1 exactly once. The 
              range of values is remapped linearly to span the range from 0 to 
              2**16-1 supported by the output format. nChannel can be 1, 2, 3 or 4.
-      \param OutputPNGFilePath The path to the output *.png file including the file 
+      \\param OutputPNGFilePath The path to the output *.png file including the file 
              format extension.
-      \param nRank Defaults to Width*Height if you pass a non-positive value."""
+      \\param nRank Defaults to Width*Height if you pass a non-positive value."""
     # Scale the array to an HDR version
     if(nRank<=0):
         nRank=Texture.shape[0]*Texture.shape[1];
@@ -343,7 +343,7 @@ def Generate3DBlueNoiseTexture(Width,Height,Depth,nChannel,StandardDeviation=1.5
        dimensions and number of channels. It then outputs it to a sequence of Depth 
        output files in LDR and HDR in a well-organized tree of directories. It also 
        outputs raw binary files.
-      \sa StoreNDTextureHDR() """
+      \\sa StoreNDTextureHDR() """
     OutputDirectory="../Data/%d_%d_%d"%(Width,Height,Depth);
     if(not path.exists(OutputDirectory)):
         makedirs(OutputDirectory);
@@ -370,7 +370,7 @@ def GenerateNDBlueNoiseTexture(Shape,nChannel,OutputFilePath,StandardDeviation=1
     """This function generates a single n-dimensional blue noise texture with the 
        specified shape and number of channels. It then outputs it to the specified 
        raw binary file.
-      \sa StoreNDTextureHDR() """
+      \\sa StoreNDTextureHDR() """
     OutputDirectory=path.split(OutputFilePath)[0];
     if(not path.exists(OutputDirectory)):
         makedirs(OutputDirectory);
@@ -393,9 +393,9 @@ def UniformToTriangularDistribution(UniformTexture):
        constructs an array of equal shape with a triangular distribution of values. 
        This is accomplished by applying a differentiable, monotonously growing 
        function per entry.
-      \param UniformTexture An integer array containing each value from 0 to 
+      \\param UniformTexture An integer array containing each value from 0 to 
              np.size(UniformTexture)-1 exactly once.
-      \return A floating-point array with values between -1 and 1 where the density 
+      \\return A floating-point array with values between -1 and 1 where the density 
               grows linearly between -1 and 0 and falls linearly between 0 and 1."""
     Normalized=(np.asarray(UniformTexture,dtype=float)+0.5)/float(np.size(UniformTexture));
     return np.where(Normalized<0.5,np.sqrt(2.0*Normalized)-1.0,1.0-np.sqrt(2.0-2.0*Normalized));
