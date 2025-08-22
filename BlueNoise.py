@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # BlueNoise.py - An implementation of the void and cluster method for generation of 
 #                blue noise dither arrays and related utilities.
 #
@@ -10,6 +12,10 @@
 # You should have received a copy of the CC0 Public Domain Dedication along with 
 # this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>. 
 
+# 0 ...... Disable multiprocessing
+# None ... Use all available CPUs
+NUM_PROCESSES = None
+
 from os import path,makedirs
 import numpy as np
 from scipy import ndimage
@@ -17,6 +23,7 @@ from matplotlib import pyplot
 import png
 import threading
 import struct
+import multiprocessing
 
 def GetBayerPattern(Log2Width):
     """Creates a two-dimensional Bayer pattern with a width and height of 
@@ -312,6 +319,14 @@ def LoadNDTextureHDR(SourceFilePath):
     # Prepare the output
     return np.asarray(Data,dtype=np.uint32).reshape(tuple(list(Shape)+[nChannel]),order="C");
 
+def generate_blue_noise_texture(seed, Resolution, nChannel, StandardDeviation, OutputDirectory):
+    LDRFormat=["LLL1","RG01","RGB1","RGBA"][nChannel-1];
+    HDRFormat=["L","LA","RGB","RGBA"][nChannel-1];
+    print("Starting: %d*%d, %s, %d"%(Resolution,Resolution,LDRFormat,seed));
+    Texture=np.dstack([GetVoidAndClusterBlueNoise((Resolution,Resolution),StandardDeviation) for j in range(nChannel)]);
+    StoreNoiseTextureLDR(Texture,path.join(OutputDirectory,"LDR_%s_%d.png"%(LDRFormat,seed)));
+    StoreNoiseTextureHDR(Texture,path.join(OutputDirectory,"HDR_%s_%d.png"%(HDRFormat,seed)));
+    print("Done:     %d*%d, %s, %d"%(Resolution,Resolution,LDRFormat,seed));
 
 def GenerateBlueNoiseDatabase(RandomSeedIndexList=range(1),MinResolution=16,MaxResolution=1024,ChannelCountList=[1,2,3,4],StandardDeviation=1.5):
     """This function generates a database of blue noise textures for all sorts of 
@@ -322,6 +337,15 @@ def GenerateBlueNoiseDatabase(RandomSeedIndexList=range(1),MinResolution=16,MaxR
        file name. StandardDeviation forwards to GetVoidAndClusterBlueNoise(). The 
        results are stored as LDR and HDR files to a well-organized tree of 
        of directories."""
+    
+    is_multiprocessing = (NUM_PROCESSES == None or NUM_PROCESSES > 0)
+    
+    if is_multiprocessing:
+        pool = multiprocessing.Pool(NUM_PROCESSES)
+        print(f"Multiprocessing: {pool._processes} CPUs")
+    else:
+        print("Disabled multiprocessing")
+    
     Resolution=MinResolution;
     while(Resolution<=MaxResolution):
         OutputDirectory="./Data/%d_%d"%(Resolution,Resolution);
@@ -329,13 +353,16 @@ def GenerateBlueNoiseDatabase(RandomSeedIndexList=range(1),MinResolution=16,MaxR
             makedirs(OutputDirectory);
         for nChannel in ChannelCountList:
             for i in RandomSeedIndexList:
-                Texture=np.dstack([GetVoidAndClusterBlueNoise((Resolution,Resolution),StandardDeviation) for j in range(nChannel)]);
-                LDRFormat=["LLL1","RG01","RGB1","RGBA"][nChannel-1];
-                HDRFormat=["L","LA","RGB","RGBA"][nChannel-1];
-                StoreNoiseTextureLDR(Texture,path.join(OutputDirectory,"LDR_%s_%d.png"%(LDRFormat,i)));
-                StoreNoiseTextureHDR(Texture,path.join(OutputDirectory,"HDR_%s_%d.png"%(HDRFormat,i)));
-                print("%d*%d, %s, %d"%(Resolution,Resolution,LDRFormat,i));
+                args = [ i, Resolution, nChannel, StandardDeviation, OutputDirectory ]
+                if is_multiprocessing:
+                    pool.apply_async(generate_blue_noise_texture, args)
+                else:
+                    generate_blue_noise_texture(*args)
         Resolution*=2;
+    
+    if is_multiprocessing:
+        pool.close()
+        pool.join()
 
 
 def Generate3DBlueNoiseTexture(Width,Height,Depth,nChannel,StandardDeviation=1.5):
@@ -414,8 +441,12 @@ if(__name__=="__main__"):
         #ChannelNames=["","L","LA","RGB","RGBA"][nChannel];
         #GenerateNDBlueNoiseTexture((8,8,8,8),nChannel,"./Data/8_8_8_8/HDR_"+ChannelNames+".raw",1.9);
         #GenerateNDBlueNoiseTexture((16,16,16,16),nChannel,"./Data/16_16_16_16/HDR_"+ChannelNames+".raw",1.9);
+    
+    # GenerateBlueNoiseDatabase(range(16),512,512,[1],1.9);
+    # GenerateBlueNoiseDatabase(range(16),1024,1024,[1],1.9);
+    
     Texture=GetVoidAndClusterBlueNoise((64,64),1.9);
-    #Texture=GetVoidAndClusterBlueNoise((32,32,32),1.9)[:,:,0];
+    # Texture=GetVoidAndClusterBlueNoise((32,32,32),1.9)[:,:,0];
     AnalyzeNoiseTexture(Texture,True);
     PlotBinaryPatterns(Texture,3,5);
     pyplot.show();
