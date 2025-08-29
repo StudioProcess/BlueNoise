@@ -70,7 +70,7 @@ def FindTightestCluster(BinaryPattern,StandardDeviation):
     return np.argmax(np.where(BinaryPattern,FilteredArray,-1.0));
 
 
-def GetVoidAndClusterBlueNoise(OutputShape,StandardDeviation=1.5,InitialSeedFraction=0.1):
+def GetVoidAndClusterBlueNoise(OutputShape,StandardDeviation=1.5,InitialSeedFraction=0.1,RandomSeed=None):
     """Generates a blue noise dither array of the given shape using the method 
        proposed by Ulichney [1993] in "The void-and-cluster method for dither array 
        generation" published in Proc. SPIE 1913. 
@@ -92,6 +92,7 @@ def GetVoidAndClusterBlueNoise(OutputShape,StandardDeviation=1.5,InitialSeedFrac
              is little change.
       \\return An integer array of shape OutputShape containing each integer from 0 
               to np.prod(OutputShape)-1 exactly once."""
+    np.random.seed(RandomSeed);
     nRank=np.prod(OutputShape);
     # Generate the initial binary pattern with a prescribed number of ones
     nInitialOne=max(1,min(int((nRank-1)/2),int(nRank*InitialSeedFraction)));
@@ -323,7 +324,7 @@ def generate_blue_noise_texture(seed, Resolution, nChannel, StandardDeviation, O
     LDRFormat=["LLL1","RG01","RGB1","RGBA"][nChannel-1];
     HDRFormat=["L","LA","RGB","RGBA"][nChannel-1];
     print("Starting: %d*%d, %s, %d"%(Resolution,Resolution,LDRFormat,seed));
-    Texture=np.dstack([GetVoidAndClusterBlueNoise((Resolution,Resolution),StandardDeviation) for j in range(nChannel)]);
+    Texture=np.dstack([GetVoidAndClusterBlueNoise((Resolution,Resolution),StandardDeviation, RandomSeed=seed) for j in range(nChannel)]);
     StoreNoiseTextureLDR(Texture,path.join(OutputDirectory,"LDR_%s_%d.png"%(LDRFormat,seed)));
     StoreNoiseTextureHDR(Texture,path.join(OutputDirectory,"HDR_%s_%d.png"%(HDRFormat,seed)));
     print("Done:     %d*%d, %s, %d"%(Resolution,Resolution,LDRFormat,seed));
